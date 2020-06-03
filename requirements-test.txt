@@ -1,0 +1,7 @@
+pytest
+setuptools
+wheel
+
+kedro>=0.16.0
+kedro[pandas]>=0.16.0
+kedro[pillow]>=0.16.0
