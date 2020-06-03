@@ -11,7 +11,7 @@ from .wing_info import (
     parse_wing_info,
 )
 
-logger = logging.getLogger("KedroQuickPipe")
+logger = logging.getLogger("KedroWings")
 
 
 class KedroWingsException(Exception):
@@ -65,15 +65,15 @@ class KedroWings:
     ) -> Dict[str, AbstractDataSet]:
         out = {}
         for dataset_catalog_name in dataset_catalog_names:
-            kedro_quick_data_set = parse_wing_info(
+            kedro_wings_data_set = parse_wing_info(
                 dataset_catalog_name, set(self._dataset_configs.keys())
             )
-            if kedro_quick_data_set == WingInfo():
+            if kedro_wings_data_set == WingInfo():
                 continue
-            filepath_dir = os.path.join(self._root, kedro_quick_data_set.directory)
-            filepath = os.path.join(filepath_dir, kedro_quick_data_set.basename)
+            filepath_dir = os.path.join(self._root, kedro_wings_data_set.directory)
+            filepath = os.path.join(filepath_dir, kedro_wings_data_set.basename)
             dataset_config = {
-                **self._dataset_configs[kedro_quick_data_set.extension],
+                **self._dataset_configs[kedro_wings_data_set.extension],
                 "filepath": filepath,
             }
             out[dataset_catalog_name] = AbstractDataSet.from_config(
