@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Any
 
 from kedro.framework.hooks import hook_impl
 from kedro.io import DataCatalog, AbstractDataSet
@@ -22,6 +22,10 @@ class InvalidKedroWingsDataSet(KedroWingsException):
     pass
 
 
+class MissingType(KedroWingsException):
+    pass
+
+
 class KedroWings:
     DEFAULT_TYPES = {
         ".csv": {"type": "pandas.CSVDataSet"},
@@ -39,7 +43,7 @@ class KedroWings:
 
     def __init__(
         self,
-        dataset_configs: Dict[str, Dict] = None,
+        dataset_configs: Dict[str, Any] = None,
         paths: Dict[str, str] = None,
         root: str = None,
         enabled: bool = True,
@@ -61,24 +65,36 @@ class KedroWings:
         self._enabled = enabled
         self._root = root
 
+    @staticmethod
+    def _verify_config(ext: str, found_config: Dict):
+        if 'type' not in found_config:
+            raise MissingType(f'Configuration for {ext} is missing its "type" key.')
+
+    def _wing_to_dataset_config(self, wing: WingInfo) -> Dict:
+        filepath_dir = os.path.join(self._root, wing.directory)
+        filepath = os.path.join(filepath_dir, wing.basename)
+        found_config = self._dataset_configs[wing.extension]
+        if type(found_config) is not dict:
+            found_config = {'type': found_config}
+        self._verify_config(wing.extension, found_config)
+        dataset_config = {
+            "filepath": filepath,
+            **found_config,
+        }
+        return dataset_config
+
     def _create_catalog_entries(
         self, dataset_catalog_names: Iterable[str]
     ) -> Dict[str, AbstractDataSet]:
         out = {}
         for dataset_catalog_name in dataset_catalog_names:
-            kedro_quick_data_set = parse_wing_info(
+            wing = parse_wing_info(
                 dataset_catalog_name, set(self._dataset_configs.keys())
             )
-            if kedro_quick_data_set == WingInfo():
+            if wing == WingInfo():
                 continue
-            filepath_dir = os.path.join(self._root, kedro_quick_data_set.directory)
-            filepath = os.path.join(filepath_dir, kedro_quick_data_set.basename)
-            dataset_config = {
-                **self._dataset_configs[kedro_quick_data_set.extension],
-                "filepath": filepath,
-            }
             out[dataset_catalog_name] = AbstractDataSet.from_config(
-                dataset_catalog_name, dataset_config
+                dataset_catalog_name, self._wing_to_dataset_config(wing)
             )
         return out
 
