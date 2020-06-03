@@ -71,7 +71,8 @@ class KedroWings:
             raise MissingType(f'Configuration for {ext} is missing its "type" key.')
 
     def _wing_to_dataset_config(self, wing: WingInfo) -> Dict:
-        filepath_dir = os.path.join(self._root, wing.directory)
+        directory = self._paths.get(wing.directory, wing.directory)
+        filepath_dir = os.path.join(self._root, directory)
         filepath = os.path.join(filepath_dir, wing.basename)
         found_config = self._dataset_configs[wing.extension]
         if type(found_config) is not dict:
