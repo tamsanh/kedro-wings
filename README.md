@@ -65,7 +65,6 @@ class ProjectContext(KedroContext):
     hooks = (
         KedroQuickPipes(),
     )
-
 ```
 
 
@@ -99,6 +98,7 @@ The following are the datasets available by default.
 ".jpeg": {"type": "pillow.ImageDataSet"},
 ".img": {"type": "pillow.ImageDataSet"},
 ".pkl": {"type": "pickle.PickleDataSet"},
+".parquet": {"type": "pandas.ParquetDataSet"},
 ```
 
 ### Configuration
@@ -113,43 +113,77 @@ KedroWings(dataset_configs, paths, root, enabled)
 ```
 :param dataset_configs: A mapping of file name extensions to the type of dataset to be created.
 
-Ex: Make default csv files use pipes as separators
-dataset_configs={
-    '.csv': {'type': 'pandas.CSVDataSet', 'sep': '|'},
-}
 ```
 
 This allows the default dataset configurations to be overridden.
 This also allows the default extension to dataset mapping to be overridden or extended for other datasets.
 
-#### paths
-```
-:param paths: A mapping of old path names to new path names.
+##### Ex: Make default csv files use pipes as separators
 
-Ex: Moving data from 06_models to a new_models folder
-paths={
-    '06_models': 'new_models',
-}
+``` python
+KedroWings(dataset_configs={
+    '.csv': {'type': 'pandas.CSVDataSet', 'sep': '|'},
+})
 ```
+
+##### Ex: Use IDE friendly types
+
+``` python
+KedroWings(dataset_configs={
+    '.csv': {'type': pandas.CSVDataSet, 'sep': '|'},
+})
+```
+
+##### Ex: Use dataset types directly
+
+``` python
+from kedro.extras.dataset import pandas
+KedroWings(dataset_configs={
+    '.csv': pandas.CSVDataSet,
+})
+```
+
+
+#### paths
 
 This allows specified paths to be remmaped
 
+```
+:param paths: A mapping of old path names to new path names.
+```
+
+##### Ex: Moving data from 06_models to a new_models folder
+
+``` python
+KedroWings(paths={
+    '06_models': 'new_models',
+})
+```
+
 #### root
+This setting is prepended to any paths parsed. This is useful if the dataset supports `fsspec`.
+
 ```
 :param root: The root directory to save files to. Default: data
-
-Ex: Saving data to s3 instead of the local directory.
-root='s3a://my-bucket/kedro-data'
 ```
 
-This setting is prepended to any paths parsed. This is useful if the dataset supports fsspec.
+##### Ex: Saving data to s3 instead of the local directory.
+
+``` python
+KedroWings(root='s3a://my-bucket/kedro-data')
+```
+
 
 #### enabled
-````
-:param enabled: Convenience flag to enable or disable this plugin.
+This setting allows easy enabling and disabling of the plugin.
 
-Ex: Use an environment variable to enable or disable wings
-enabled=os.getenv('ENABLE_WINGS')
+```
+:param enabled: Convenience flag to enable or disable this plugin.
 ```
 
-This setting allows easy enabling and disabling of the plugin.
+##### Ex: Use an environment variable to enable or disable wings
+
+``` python
+KedroWings(enabled=os.getenv('ENABLE_WINGS'))
+```
+
