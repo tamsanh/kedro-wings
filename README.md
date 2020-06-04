@@ -1,5 +1,8 @@
 # Kedro Wings
 
+As Seen on DataEngineerOne:  
+*[Kedro Wings: It's almost too easy to write pipelines this way.](https://www.youtube.com/watch?v=p4ELo1tqbYY)*
+
 <p align="center">
   <img width="255" src="https://github.com/tamsanh/kedro-wings/blob/master/images/kedro-wings.png">
 </p>
@@ -7,7 +10,7 @@
 Give your next kedro project Wings! The perfect plugin for brand new pipelines, and new kedro users.
 This plugin enables easy and fast creation of datasets so that you can get straight into coding your pipelines.
 
-## Iris Example
+## Quick Start Usage Example: Iris Example
 
 The following example is a recreation of the iris example pipeline.
 
@@ -16,7 +19,7 @@ Catalog entries are automatically created by parsing the values for your nodes' 
 
 This pipeline automatically creates a dataset that reads from the `iris.csv` and then it creates 12 more datasets, corresponding to the outputs and inputs of the other datasets.
 
-``` python
+```python
 wing_example = Pipeline([
     node(
         split_data,
@@ -74,7 +77,7 @@ class ProjectContext(KedroContext):
 
 Catalog entries are created using dataset input and output strings. The API is simple:
 
-``` python
+```python
 inputs="[PATH]/[NAME].[EXT]"
 ```
 
@@ -83,11 +86,37 @@ The `NAME` portion determines the final output name of the file to be saved.
 The `EXT`  portion determines the dataset used to save and load that particular data.
 
 
+##### Ex: Creating an iris.csv reader
+```python
+node(split_data, inputs='01_raw/iris.csv', outputs='split_data_output')
+```
+
+This will create a `pandas.CSVDataSet` pointing at the `01_raw/iris.csv` file.
+
+
+##### Ex: Overwrite a Kedro Wing dataset using `catalog.yml`
+```python
+# pipeline.py
+node(split_data, inputs='01_raw/iris.csv', outputs='split_data_output')
+```
+
+```yaml
+# catalog.yml
+01_raw/iris.csv':
+    type: pandas.CSVDataSet
+    filepath: data/01_raw/iris.csv
+```
+
+If a catalog entry already exists inside of `catalog.yml`, with a name that matches the wing catalog name,
+KedroWings will NOT create that catalog, and will instead defer to the `catalog.yml` entry.
+
+
 #### Default Datasets
 
 The following are the datasets available by default.
 
-```
+```python
+default_dataset_configs={
 ".csv": {"type": "pandas.CSVDataSet"},
 ".yml": {"type": "yaml.YAMLDataSet"},
 ".yaml": {"type": "yaml.YAMLDataSet"},
@@ -99,6 +128,7 @@ The following are the datasets available by default.
 ".img": {"type": "pillow.ImageDataSet"},
 ".pkl": {"type": "pickle.PickleDataSet"},
 ".parquet": {"type": "pandas.ParquetDataSet"},
+}
 ```
 
 ### Configuration
@@ -120,7 +150,7 @@ This also allows the default extension to dataset mapping to be overridden or ex
 
 ##### Ex: Make default csv files use pipes as separators
 
-``` python
+```python
 KedroWings(dataset_configs={
     '.csv': {'type': 'pandas.CSVDataSet', 'sep': '|'},
 })
@@ -128,7 +158,7 @@ KedroWings(dataset_configs={
 
 ##### Ex: Use IDE friendly types
 
-``` python
+```python
 KedroWings(dataset_configs={
     '.csv': {'type': pandas.CSVDataSet, 'sep': '|'},
 })
@@ -136,7 +166,7 @@ KedroWings(dataset_configs={
 
 ##### Ex: Use dataset types directly
 
-``` python
+```python
 from kedro.extras.dataset import pandas
 KedroWings(dataset_configs={
     '.csv': pandas.CSVDataSet,
@@ -154,7 +184,7 @@ This allows specified paths to be remmaped
 
 ##### Ex: Moving data from 06_models to a new_models folder
 
-``` python
+```python
 KedroWings(paths={
     '06_models': 'new_models',
 })
