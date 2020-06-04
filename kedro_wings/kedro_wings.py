@@ -67,7 +67,7 @@ class KedroWings:
 
     @staticmethod
     def _verify_config(ext: str, found_config: Dict):
-        if 'type' not in found_config:
+        if "type" not in found_config:
             raise MissingType(f'Configuration for {ext} is missing its "type" key.')
 
     def _wing_to_dataset_config(self, wing: WingInfo) -> Dict:
@@ -76,7 +76,7 @@ class KedroWings:
         filepath = os.path.join(filepath_dir, wing.basename)
         found_config = self._dataset_configs[wing.extension]
         if type(found_config) is not dict:
-            found_config = {'type': found_config}
+            found_config = {"type": found_config}
         self._verify_config(wing.extension, found_config)
         dataset_config = {
             "filepath": filepath,
@@ -117,5 +117,8 @@ class KedroWings:
 
         catalog_entries = self._create_catalog_entries(all_dataset_names)
 
+        existing_catalog_names = set(catalog.list())
         for catalog_name, catalog_dataset in catalog_entries.items():
+            if catalog_name in existing_catalog_names:
+                continue
             catalog.add(catalog_name, catalog_dataset)
