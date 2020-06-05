@@ -20,7 +20,7 @@ def valid_extensions():
 
 
 @pytest.fixture
-def valid_quick_datasets():
+def valid_wings_datasets():
     return [
         WingInfo('01_raw', 'sample_data', '.csv', 'sample_data.csv'),
         WingInfo('02_intermediate', 'sample_data', '.txt', 'sample_data.txt'),
@@ -28,10 +28,10 @@ def valid_quick_datasets():
     ]
 
 
-def test_parse_valid_entries(valid_catalog_names, valid_extensions, valid_quick_datasets):
-    for valid_catalog_name, valid_quick_dataset in zip(valid_catalog_names, valid_quick_datasets):
-        parsed_quick_dataset = parse_wing_info(valid_catalog_name, valid_extensions)
-        assert parsed_quick_dataset == valid_quick_dataset
+def test_parse_valid_entries(valid_catalog_names, valid_extensions, valid_wings_datasets):
+    for valid_catalog_name, valid_wings_dataset in zip(valid_catalog_names, valid_wings_datasets):
+        parsed_wings_dataset = parse_wing_info(valid_catalog_name, valid_extensions)
+        assert parsed_wings_dataset == valid_wings_dataset
 
 
 def test_parse_invalid_entries(valid_catalog_names):
