@@ -61,12 +61,12 @@ pip install kedro-wings
 ```
 
 ``` python
-from kedro_quick_pipes import KedroQuickPipes
+from kedro_wings import KedroWings
 
 
 class ProjectContext(KedroContext):
     hooks = (
-        KedroQuickPipes(),
+        KedroWings(),
     )
 ```
 

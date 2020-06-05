@@ -13,7 +13,7 @@ from .wing_info import (
     parse_wing_info,
 )
 
-logger = logging.getLogger("KedroQuickPipe")
+logger = logging.getLogger("KedroWings")
 
 
 class KedroWingsException(Exception):
