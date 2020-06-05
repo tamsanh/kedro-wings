@@ -1,5 +1,8 @@
 # Kedro Wings
 
+As Seen on DataEngineerOne:  
+*[Kedro Wings: It's almost too easy to write pipelines this way.](https://www.youtube.com/watch?v=p4ELo1tqbYY)*
+
 <p align="center">
   <img width="255" src="https://github.com/tamsanh/kedro-wings/blob/master/images/kedro-wings.png">
 </p>
@@ -7,7 +10,7 @@
 Give your next kedro project Wings! The perfect plugin for brand new pipelines, and new kedro users.
 This plugin enables easy and fast creation of datasets so that you can get straight into coding your pipelines.
 
-## Iris Example
+## Quick Start Usage Example: Iris Example
 
 The following example is a recreation of the iris example pipeline.
 
@@ -16,7 +19,7 @@ Catalog entries are automatically created by parsing the values for your nodes' 
 
 This pipeline automatically creates a dataset that reads from the `iris.csv` and then it creates 12 more datasets, corresponding to the outputs and inputs of the other datasets.
 
-``` python
+```python
 wing_example = Pipeline([
     node(
         split_data,
@@ -65,7 +68,6 @@ class ProjectContext(KedroContext):
     hooks = (
         KedroWings(),
     )
-
 ```
 
 
@@ -75,7 +77,7 @@ class ProjectContext(KedroContext):
 
 Catalog entries are created using dataset input and output strings. The API is simple:
 
-``` python
+```python
 inputs="[PATH]/[NAME].[EXT]"
 ```
 
@@ -84,11 +86,37 @@ The `NAME` portion determines the final output name of the file to be saved.
 The `EXT`  portion determines the dataset used to save and load that particular data.
 
 
+##### Ex: Creating an iris.csv reader
+```python
+node(split_data, inputs='01_raw/iris.csv', outputs='split_data_output')
+```
+
+This will create a `pandas.CSVDataSet` pointing at the `01_raw/iris.csv` file.
+
+
+##### Ex: Overwrite a Kedro Wing dataset using `catalog.yml`
+```python
+# pipeline.py
+node(split_data, inputs='01_raw/iris.csv', outputs='split_data_output')
+```
+
+```yaml
+# catalog.yml
+01_raw/iris.csv':
+    type: pandas.CSVDataSet
+    filepath: data/01_raw/iris.csv
+```
+
+If a catalog entry already exists inside of `catalog.yml`, with a name that matches the wing catalog name,
+KedroWings will NOT create that catalog, and will instead defer to the `catalog.yml` entry.
+
+
 #### Default Datasets
 
 The following are the datasets available by default.
 
-```
+```python
+default_dataset_configs={
 ".csv": {"type": "pandas.CSVDataSet"},
 ".yml": {"type": "yaml.YAMLDataSet"},
 ".yaml": {"type": "yaml.YAMLDataSet"},
@@ -99,6 +127,8 @@ The following are the datasets available by default.
 ".jpeg": {"type": "pillow.ImageDataSet"},
 ".img": {"type": "pillow.ImageDataSet"},
 ".pkl": {"type": "pickle.PickleDataSet"},
+".parquet": {"type": "pandas.ParquetDataSet"},
+}
 ```
 
 ### Configuration
@@ -113,43 +143,77 @@ KedroWings(dataset_configs, paths, root, enabled)
 ```
 :param dataset_configs: A mapping of file name extensions to the type of dataset to be created.
 
-Ex: Make default csv files use pipes as separators
-dataset_configs={
-    '.csv': {'type': 'pandas.CSVDataSet', 'sep': '|'},
-}
 ```
 
 This allows the default dataset configurations to be overridden.
 This also allows the default extension to dataset mapping to be overridden or extended for other datasets.
 
-#### paths
-```
-:param paths: A mapping of old path names to new path names.
+##### Ex: Make default csv files use pipes as separators
 
-Ex: Moving data from 06_models to a new_models folder
-paths={
-    '06_models': 'new_models',
-}
+```python
+KedroWings(dataset_configs={
+    '.csv': {'type': 'pandas.CSVDataSet', 'sep': '|'},
+})
 ```
+
+##### Ex: Use IDE friendly types
+
+```python
+KedroWings(dataset_configs={
+    '.csv': {'type': pandas.CSVDataSet, 'sep': '|'},
+})
+```
+
+##### Ex: Use dataset types directly
+
+```python
+from kedro.extras.dataset import pandas
+KedroWings(dataset_configs={
+    '.csv': pandas.CSVDataSet,
+})
+```
+
+
+#### paths
 
 This allows specified paths to be remmaped
 
+```
+:param paths: A mapping of old path names to new path names.
+```
+
+##### Ex: Moving data from 06_models to a new_models folder
+
+```python
+KedroWings(paths={
+    '06_models': 'new_models',
+})
+```
+
 #### root
+This setting is prepended to any paths parsed. This is useful if the dataset supports `fsspec`.
+
 ```
 :param root: The root directory to save files to. Default: data
-
-Ex: Saving data to s3 instead of the local directory.
-root='s3a://my-bucket/kedro-data'
 ```
 
-This setting is prepended to any paths parsed. This is useful if the dataset supports fsspec.
+##### Ex: Saving data to s3 instead of the local directory.
+
+``` python
+KedroWings(root='s3a://my-bucket/kedro-data')
+```
+
 
 #### enabled
-````
-:param enabled: Convenience flag to enable or disable this plugin.
+This setting allows easy enabling and disabling of the plugin.
 
-Ex: Use an environment variable to enable or disable wings
-enabled=os.getenv('ENABLE_WINGS')
+```
+:param enabled: Convenience flag to enable or disable this plugin.
 ```
 
-This setting allows easy enabling and disabling of the plugin.
+##### Ex: Use an environment variable to enable or disable wings
+
+``` python
+KedroWings(enabled=os.getenv('ENABLE_WINGS'))
+```
+
