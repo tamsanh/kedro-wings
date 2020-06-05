@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="kedro-wings",
-    version="0.1.6",
+    version="0.1.7",
     url="https://github.com/tamsanh/kedro-wings.git",
     author="Tam-Sanh Nguyen",
     author_email="tamsanh@gmail.com",
