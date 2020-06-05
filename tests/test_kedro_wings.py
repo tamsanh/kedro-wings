@@ -26,6 +26,28 @@ def test_wing_info_to_config():
         wings._wing_to_dataset_config(info)
 
 
+def test_kedro_wings_and_context():
+    from kedro.pipeline import Pipeline, node
+    from kedro.io import DataCatalog
+
+    class FakeContext:
+        def _get_catalog(self):
+            return DataCatalog()
+
+        @property
+        def pipelines(self):
+            return {'hi': Pipeline([node(lambda x: x, inputs='01_raw/data.csv', outputs='02_intermediate/data.csv')])}
+
+        @property
+        def catalog(self):
+            return self._get_catalog()
+
+    mock_context = FakeContext()
+
+    KedroWings(context=mock_context)
+    assert set(mock_context.catalog.list()) == {'01_raw/data.csv', '02_intermediate/data.csv'}
+
+
 def test_create_catalog_entries():
     wings = KedroWings()
 
