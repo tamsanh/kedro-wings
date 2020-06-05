@@ -56,11 +56,18 @@ wing_example = Pipeline([
 
 Kedro Wings is available on pypi, and is installed with [kedro hooks](https://kedro.readthedocs.io/en/latest/04_user_guide/15_hooks.html).
 
+
+
 ``` console
 pip install kedro-wings
 ```
 
-``` python
+
+### Setup with Kedro Pipeline
+
+Simply add a `KedroWings` instance to the `ProjectContext` `hooks` tuple.
+
+```python
 from kedro_wings import KedroWings
 
 
@@ -70,6 +77,22 @@ class ProjectContext(KedroContext):
     )
 ```
 
+### Setup with Jupyter Notebook
+
+Simply pass the kedro context into `KedroWings`, and it will automatically add all catalog entries from all available pipelines.
+
+```python
+# Load the context if not using a kedro jupyter notebook
+from kedro.framework.context import load_context
+context = load_context('./')
+
+# Pass the context into KedroWings
+from kedro_wings import KedroWings
+KedroWing(context=context)
+
+# context catalog now has all wings datasets available.
+context.catalog.list()
+```
 
 ## Usage
 
@@ -153,14 +176,6 @@ This also allows the default extension to dataset mapping to be overridden or ex
 ```python
 KedroWings(dataset_configs={
     '.csv': {'type': 'pandas.CSVDataSet', 'sep': '|'},
-})
-```
-
-##### Ex: Use IDE friendly types
-
-```python
-KedroWings(dataset_configs={
-    '.csv': {'type': pandas.CSVDataSet, 'sep': '|'},
 })
 ```
 
