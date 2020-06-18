@@ -28,6 +28,10 @@ class MissingType(KedroWingsException):
     pass
 
 
+class MissingChronoDataSetTarget(KedroWingsException):
+    pass
+
+
 class KedroWings:
     DEFAULT_TYPES = {
         ".csv": {"type": "pandas.CSVDataSet"},
@@ -94,11 +98,20 @@ class KedroWings:
         }
         return dataset_config
 
-    def _create_catalog_entries(
+    def _create_entries(self, dataset_catalog_names: Iterable[str], catalog_datasets: Dict[str, AbstractDataSet]):
+        wing_entries = self._create_wing_entries(dataset_catalog_names)
+        catalog_and_wings = {**catalog_datasets, **wing_entries}
+        chrono_datasets = self._create_chronocode_entries(dataset_catalog_names, catalog_and_wings)
+        return {**wing_entries, **chrono_datasets}
+
+    def _create_wing_entries(
         self, dataset_catalog_names: Iterable[str]
     ) -> Dict[str, AbstractDataSet]:
         out = {}
         for dataset_catalog_name in dataset_catalog_names:
+            if dataset_catalog_name.endswith("!"):
+                continue
+
             wing = parse_wing_info(
                 dataset_catalog_name, set(self._dataset_configs.keys())
             )
@@ -107,6 +120,29 @@ class KedroWings:
             out[dataset_catalog_name] = AbstractDataSet.from_config(
                 dataset_catalog_name, self._wing_to_dataset_config(wing)
             )
+        return out
+
+    def _create_chronocode_entries(self, dataset_catalog_names: Iterable[str], catalog_datasets: Dict[str, AbstractDataSet]):
+        out = {}
+
+        for dataset_catalog_name in dataset_catalog_names:
+            if not dataset_catalog_name.endswith('!'):
+                continue
+            nonchrono_name = dataset_catalog_name[:-1]
+            wing = parse_wing_info(
+                nonchrono_name, set(self._dataset_configs.keys())
+            )
+            if wing != WingInfo():
+                out[dataset_catalog_name] = AbstractDataSet.from_config(
+                    dataset_catalog_name, self._wing_to_dataset_config(wing)
+                )
+                continue
+
+            found_dataset = catalog_datasets.get(nonchrono_name)
+            if found_dataset is None:
+                raise MissingChronoDataSetTarget(dataset_catalog_name)
+            out[dataset_catalog_name] = found_dataset
+
         return out
 
     _backup_attr_name = "__wings_backup_get_catalog"
@@ -125,8 +161,6 @@ class KedroWings:
             ]
         )
 
-        catalog_entries = self._create_catalog_entries(all_dataset_names)
-
         setattr(context, KedroWings._backup_attr_name, context._get_catalog)
 
         def _generate_wings_catalog(self_context, self_catalog_entries):
@@ -142,8 +176,9 @@ class KedroWings:
 
             return _get_wings_catalog
 
+        all_new_entries = self._create_entries(all_dataset_names, context.catalog._data_sets)
         setattr(
-            context, "_get_catalog", _generate_wings_catalog(context, catalog_entries)
+            context, "_get_catalog", _generate_wings_catalog(context, all_new_entries)
         )
 
     @hook_impl
@@ -162,10 +197,10 @@ class KedroWings:
             ]
         )
 
-        catalog_entries = self._create_catalog_entries(all_dataset_names)
+        all_new_entries = self._create_entries(all_dataset_names, catalog._data_sets)
 
         existing_catalog_names = set(catalog.list())
-        for catalog_name, catalog_dataset in catalog_entries.items():
+        for catalog_name, catalog_dataset in all_new_entries:
             if catalog_name in existing_catalog_names:
                 continue
             catalog.add(catalog_name, catalog_dataset)
