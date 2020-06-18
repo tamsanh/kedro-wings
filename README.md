@@ -1,7 +1,8 @@
 # Kedro Wings
 
-As Seen on DataEngineerOne:  
-*[Kedro Wings: It's almost too easy to write pipelines this way.](https://www.youtube.com/watch?v=p4ELo1tqbYY)*
+As Seen on [YouTube DataEngineerOne](https://www.youtube.com/c/DataEngineerOne):  
+* **[Kedro Wings: It's almost too easy to write pipelines this way.](https://www.youtube.com/watch?v=p4ELo1tqbYY)**
+* **[Easy Stateful Pipelines with Chronocoding and Kedro Wings](https://youtu.be/n--1fO-NxC0)**
 
 <p align="center">
   <img width="255" src="https://github.com/tamsanh/kedro-wings/blob/master/images/kedro-wings.png">
@@ -53,12 +54,14 @@ wing_example = Pipeline([
 
 ## Quick Start Example: Chronocoding
 
+Watch the video on Chronocoding here: **[Easy Stateful Pipelines with Chronocoding and Kedro Wings](https://youtu.be/n--1fO-NxC0)**
+
 Sometimes, there arises a need to rewrite data to the same path. This makes it easier to save state between kedro runs.
 Using KedroWings, you can automatically generate *chronocoded* datasets which temporally separates a read and write to a dataset.
 
 By adding an `!` at the end of a dataset, we signal to kedro that we wish to overwrite the data in that same filepath. Thus, we get around kedro's DAG requirement for datasets.
 
-More on chronocoding here: [\[KED-1667\] Chronocoding: Solving the Problem of State Tracking with Temporally Sensitive DAGs](https://github.com/quantumblacklabs/kedro/issues/341)
+In Depth Breakdown on Chronocoding here: [\[KED-1667\] Chronocoding: Solving the Problem of State Tracking with Temporally Sensitive DAGs](https://github.com/quantumblacklabs/kedro/issues/341)  
 
 ```python
 def state_modifier(state: str) -> str:
