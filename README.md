@@ -113,7 +113,7 @@ context = load_context('./')
 
 # Pass the context into KedroWings
 from kedro_wings import KedroWings
-KedroWing(context=context)
+KedroWings(context=context)
 
 # context catalog now has all wings datasets available.
 context.catalog.list()
@@ -216,7 +216,7 @@ KedroWings(dataset_configs={
 
 #### paths
 
-This allows specified paths to be remmaped
+This allows specified paths to be remapped
 
 ```
 :param paths: A mapping of old path names to new path names.
