@@ -51,6 +51,31 @@ wing_example = Pipeline([
 ])
 ```
 
+## Quick Start Example: Chronocoding
+
+Sometimes, there arises a need to rewrite data to the same path. This makes it easier to save state between kedro runs.
+Using KedroWings, you can automatically generate *chronocoded* datasets which temporally separates a read and write to a dataset.
+
+By adding an `!` at the end of a dataset, we signal to kedro that we wish to overwrite the data in that same filepath. Thus, we get around kedro's DAG requirement for datasets.
+
+More on chronocoding here: [\[KED-1667\] Chronocoding: Solving the Problem of State Tracking with Temporally Sensitive DAGs](https://github.com/quantumblacklabs/kedro/issues/341)
+
+```python
+def state_modifier(state: str) -> str:
+    current_value = int(state)
+    new_value = current_value + 1
+    return str(new_value)
+
+def create_pipelines(**kwargs):
+    return Pipeline([
+        node(
+            state_modifier,
+            inputs="01_raw/state.txt",
+            outputs="01_raw/state.txt!"
+        ),
+    ])
+```
+
 
 ## Installation
 
