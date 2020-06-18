@@ -200,7 +200,7 @@ class KedroWings:
         all_new_entries = self._create_entries(all_dataset_names, catalog._data_sets)
 
         existing_catalog_names = set(catalog.list())
-        for catalog_name, catalog_dataset in all_new_entries:
+        for catalog_name, catalog_dataset in all_new_entries.items():
             if catalog_name in existing_catalog_names:
                 continue
             catalog.add(catalog_name, catalog_dataset)
