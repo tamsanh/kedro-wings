@@ -51,7 +51,7 @@ class KedroWings:
         self,
         dataset_configs: Dict[str, Any] = None,
         paths: Dict[str, str] = None,
-        root: str = None,
+        root: str = "data",
         namespaces: Iterable[str] = None,
         enabled: bool = True,
         context: Optional[KedroContext] = None,
@@ -67,7 +67,6 @@ class KedroWings:
 
         dataset_configs = dataset_configs or {}
         paths = paths or {}
-        root = root or "data"
 
         self._dataset_configs = {**self.DEFAULT_TYPES, **dataset_configs}
         self._paths = paths
@@ -94,7 +93,9 @@ class KedroWings:
         Parsing a wing to make it fit with a dataset config
         """
         directory = self._paths.get(wing.directory, wing.directory)
-        filepath_dir = os.path.join(self._root, directory)
+        filepath_dir = directory
+        if self._root:
+            filepath_dir = os.path.join(self._root, directory)
         filepath = os.path.join(filepath_dir, wing.basename)
         found_config = self._dataset_configs[wing.extension]
         if type(found_config) is not dict:
