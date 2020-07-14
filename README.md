@@ -187,7 +187,7 @@ default_dataset_configs={
 Kedro Wings supports configuration on instantiation of the hook.
 
 ```
-KedroWings(dataset_configs, paths, root, enabled)
+KedroWings(dataset_configs, paths, root, namespaces, enabled, context)
 ```
 
 #### dataset_configs
@@ -198,6 +198,9 @@ KedroWings(dataset_configs, paths, root, enabled)
 
 This allows the default dataset configurations to be overridden.
 This also allows the default extension to dataset mapping to be overridden or extended for other datasets.
+
+Longer extensions are prioritized over shorter extensions,
+meaning multiple encoding methods can be applied to a single filetype.
 
 ##### Ex: Make default csv files use pipes as separators
 
@@ -213,6 +216,16 @@ KedroWings(dataset_configs={
 from kedro.extras.dataset import pandas
 KedroWings(dataset_configs={
     '.csv': pandas.CSVDataSet,
+})
+```
+
+##### Ex: Save CSVs with pipes or commas
+
+```python
+from kedro.extras.dataset import pandas
+KedroWings(dataset_configs={
+    '.comma.csv': pandas.CSVDataSet,
+    '.pipe.csv': {'type': 'pandas.CSVDataSet', 'sep': '|'},
 })
 ```
 
@@ -242,10 +255,31 @@ This setting is prepended to any paths parsed. This is useful if the dataset sup
 
 ##### Ex: Saving data to s3 instead of the local directory.
 
-``` python
+```python
 KedroWings(root='s3a://my-bucket/kedro-data')
 ```
 
+##### Ex: Allow individual datasets to choose their root
+
+```python
+KedroWings(root=None)
+```
+
+#### namespaces
+
+Namespaces from modular pipelines are supported.
+This parameter should be a list of the namespaces that KedroWings should account for.
+If a namespace is encountered, the output filepath will include the namespace in the extension.
+
+##### Ex: Namespace
+
+The determined file paths would be `iris.example1.csv` and `iris2.example2.csv`.
+
+```python
+KedroWings(namespaces=['example1'])
+
+pipeline(Pipeline([node(lambda x: x, inputs='iris.csv', outputs='iris2.csv')]), namespace="example1")
+```
 
 #### enabled
 This setting allows easy enabling and disabling of the plugin.
@@ -256,7 +290,6 @@ This setting allows easy enabling and disabling of the plugin.
 
 ##### Ex: Use an environment variable to enable or disable wings
 
-``` python
+```python
 KedroWings(enabled=os.getenv('ENABLE_WINGS'))
 ```
-
