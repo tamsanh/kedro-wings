@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from kedro_wings.wing_info import parse_wing_info, WingInfo
@@ -37,3 +39,17 @@ def test_parse_valid_entries(valid_catalog_names, valid_extensions, valid_wings_
 def test_parse_invalid_entries(valid_catalog_names):
     for valid_catalog_name in valid_catalog_names:
         assert WingInfo() == parse_wing_info(valid_catalog_name, set())
+
+
+def test_prioritize_multiple_extensions():
+    extensions = {
+        '.html', '.profile.html', '.csv', '.true.csv'
+    }
+    valid_catalog_names = [
+        '01_raw/test.html',
+        '01_raw/test.profile.html',
+        '01_raw/test.true.csv',
+    ]
+    for valid_catalog_name in valid_catalog_names:
+        parsed_wing = parse_wing_info(valid_catalog_name, extensions)
+        assert os.path.join(parsed_wing.directory, parsed_wing.basename) == valid_catalog_name

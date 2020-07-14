@@ -81,10 +81,16 @@ class KedroWings:
 
     @staticmethod
     def _verify_config(ext: str, found_config: Dict):
+        """
+        Verifies a config
+        """
         if "type" not in found_config:
             raise MissingType(f'Configuration for {ext} is missing its "type" key.')
 
     def _wing_to_dataset_config(self, wing: WingInfo) -> Dict:
+        """
+        Parsing a wing to make it fit with a dataset config
+        """
         directory = self._paths.get(wing.directory, wing.directory)
         filepath_dir = os.path.join(self._root, directory)
         filepath = os.path.join(filepath_dir, wing.basename)
@@ -98,10 +104,19 @@ class KedroWings:
         }
         return dataset_config
 
-    def _create_entries(self, dataset_catalog_names: Iterable[str], catalog_datasets: Dict[str, AbstractDataSet]):
+    def _create_entries(
+        self,
+        dataset_catalog_names: Iterable[str],
+        catalog_datasets: Dict[str, AbstractDataSet],
+    ):
+        """
+        Creates a set of catalog entries based on wing and chronocoded datasets
+        """
         wing_entries = self._create_wing_entries(dataset_catalog_names)
         catalog_and_wings = {**catalog_datasets, **wing_entries}
-        chrono_datasets = self._create_chronocode_entries(dataset_catalog_names, catalog_and_wings)
+        chrono_datasets = self._create_chronocode_entries(
+            dataset_catalog_names, catalog_and_wings
+        )
         return {**wing_entries, **chrono_datasets}
 
     def _create_wing_entries(
@@ -112,9 +127,7 @@ class KedroWings:
             if dataset_catalog_name.endswith("!"):
                 continue
 
-            wing = parse_wing_info(
-                dataset_catalog_name, set(self._dataset_configs.keys())
-            )
+            wing = parse_wing_info(dataset_catalog_name, self._dataset_configs.keys())
             if wing == WingInfo():
                 continue
             out[dataset_catalog_name] = AbstractDataSet.from_config(
@@ -122,16 +135,18 @@ class KedroWings:
             )
         return out
 
-    def _create_chronocode_entries(self, dataset_catalog_names: Iterable[str], catalog_datasets: Dict[str, AbstractDataSet]):
+    def _create_chronocode_entries(
+        self,
+        dataset_catalog_names: Iterable[str],
+        catalog_datasets: Dict[str, AbstractDataSet],
+    ):
         out = {}
 
         for dataset_catalog_name in dataset_catalog_names:
-            if not dataset_catalog_name.endswith('!'):
+            if not dataset_catalog_name.endswith("!"):
                 continue
             nonchrono_name = dataset_catalog_name[:-1]
-            wing = parse_wing_info(
-                nonchrono_name, set(self._dataset_configs.keys())
-            )
+            wing = parse_wing_info(nonchrono_name, self._dataset_configs.keys())
             if wing != WingInfo():
                 out[dataset_catalog_name] = AbstractDataSet.from_config(
                     dataset_catalog_name, self._wing_to_dataset_config(wing)
@@ -176,7 +191,9 @@ class KedroWings:
 
             return _get_wings_catalog
 
-        all_new_entries = self._create_entries(all_dataset_names, context.catalog._data_sets)
+        all_new_entries = self._create_entries(
+            all_dataset_names, context.catalog._data_sets
+        )
         setattr(
             context, "_get_catalog", _generate_wings_catalog(context, all_new_entries)
         )
