@@ -7,6 +7,7 @@ class WingInfo(NamedTuple):
     name: str = ""
     extension: str = ""
     basename: str = ""
+    namespace: str = ""
 
 
 def parse_wing_info(
@@ -28,10 +29,26 @@ def parse_wing_info(
 
     cleaned_name = dataset_catalog_name[: -len(valid_extension)]
 
+    for namespace in namespaces or []:
+        dotted_namespace = f"{namespace}."
+        if cleaned_name.startswith(dotted_namespace):
+            cleaned_name = cleaned_name[len(dotted_namespace) :]
+            break
+    else:
+        namespace = ""
+
     directory = os.path.dirname(cleaned_name)
     name = os.path.basename(cleaned_name)
     ext = valid_extension
 
     basename = f"{name}{ext}"
+    if namespace:
+        basename = f"{name}.{namespace}{ext}"
 
-    return WingInfo(directory=directory, name=name, extension=ext, basename=basename)
+    return WingInfo(
+        directory=directory,
+        name=name,
+        extension=ext,
+        basename=basename,
+        namespace=namespace,
+    )

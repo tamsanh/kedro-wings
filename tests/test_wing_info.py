@@ -58,3 +58,30 @@ def test_prioritize_multiple_extensions():
             os.path.join(parsed_wing.directory, parsed_wing.basename)
             == valid_catalog_name
         )
+
+
+def test_managing_namespaces():
+    extensions = {".html", ".parquet", ".profile.parquet"}
+    valid_catalog_names = [
+        "01_raw/test.html",
+        "example1.01_raw/test.html",
+        "example2.01_raw/test.html",
+    ]
+
+    namespaces = [
+        "example1",
+        "example2",
+    ]
+
+    for valid_catalog_name in valid_catalog_names:
+        parsed_wing = parse_wing_info(valid_catalog_name, extensions, namespaces)
+        if parsed_wing.namespace:
+            assert (
+                f"{parsed_wing.namespace}.{parsed_wing.directory}/{parsed_wing.name}{parsed_wing.extension}"
+                == valid_catalog_name
+            )
+        else:
+            assert (
+                    f"{parsed_wing.directory}/{parsed_wing.name}{parsed_wing.extension}"
+                    == valid_catalog_name
+            )

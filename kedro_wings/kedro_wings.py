@@ -52,6 +52,7 @@ class KedroWings:
         dataset_configs: Dict[str, Any] = None,
         paths: Dict[str, str] = None,
         root: str = None,
+        namespaces: Iterable[str] = None,
         enabled: bool = True,
         context: Optional[KedroContext] = None,
     ):
@@ -72,6 +73,7 @@ class KedroWings:
         self._paths = paths
         self._enabled = enabled
         self._root = root
+        self._namespaces = [n if not n.endswith(".") else n[:-1] for n in namespaces]
 
         if context:
             all_pipelines = reduce(
@@ -127,7 +129,9 @@ class KedroWings:
             if dataset_catalog_name.endswith("!"):
                 continue
 
-            wing = parse_wing_info(dataset_catalog_name, self._dataset_configs.keys())
+            wing = parse_wing_info(
+                dataset_catalog_name, self._dataset_configs.keys(), self._namespaces
+            )
             if wing == WingInfo():
                 continue
             out[dataset_catalog_name] = AbstractDataSet.from_config(
@@ -146,7 +150,9 @@ class KedroWings:
             if not dataset_catalog_name.endswith("!"):
                 continue
             nonchrono_name = dataset_catalog_name[:-1]
-            wing = parse_wing_info(nonchrono_name, self._dataset_configs.keys())
+            wing = parse_wing_info(
+                nonchrono_name, self._dataset_configs.keys(), self._namespaces
+            )
             if wing != WingInfo():
                 out[dataset_catalog_name] = AbstractDataSet.from_config(
                     dataset_catalog_name, self._wing_to_dataset_config(wing)
