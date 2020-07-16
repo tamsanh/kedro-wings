@@ -72,6 +72,7 @@ class KedroWings:
         self._paths = paths
         self._enabled = enabled
         self._root = root
+        namespaces = namespaces or []
         self._namespaces = [n if not n.endswith(".") else n[:-1] for n in namespaces]
 
         if context:
