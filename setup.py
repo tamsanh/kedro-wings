@@ -18,12 +18,9 @@ setup(
     license="MIT",
     install_requires=[
         'kedro>=0.16.0',
-        'kedro[pandas]>=0.16.0',
-        'kedro[pillow]>=0.16.0',
     ],
     classifiers=[
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
 )

@@ -4,8 +4,6 @@ import pytest
 
 from kedro_wings.wing_info import parse_wing_info, WingInfo
 
-__version__ = "0.1.0"
-
 
 @pytest.fixture
 def valid_catalog_names():
