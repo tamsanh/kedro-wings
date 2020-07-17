@@ -68,18 +68,33 @@ class KedroWings:
         dataset_configs = dataset_configs or {}
         paths = paths or {}
 
-        self._dataset_configs = {**self.DEFAULT_TYPES, **dataset_configs}
-        self._paths = paths
-        self._enabled = enabled
-        self._root = root
-        namespaces = namespaces or []
-        self._namespaces = [n if not n.endswith(".") else n[:-1] for n in namespaces]
+        is_new_kw = False
 
         if context:
-            all_pipelines = reduce(
-                lambda x, y: x + y, context.pipelines.values(), Pipeline([])
-            )
-            self._add_wings_to_context(all_pipelines, context)
+            try:
+                found_kw = list(filter(lambda x: isinstance(x, KedroWings), context.hooks))[0]
+                self._dataset_configs = found_kw._dataset_configs
+                self._paths = found_kw._paths
+                self._enabled = found_kw._enabled
+                self._root = found_kw._root
+                self._namespaces = found_kw._namespaces
+                all_pipelines = reduce(
+                    lambda x, y: x + y, context.pipelines.values(), Pipeline([])
+                )
+                self._add_wings_to_context(all_pipelines, context)
+            except IndexError:
+                is_new_kw = True
+        else:
+            is_new_kw = True
+
+        if is_new_kw:
+            self._dataset_configs = {**self.DEFAULT_TYPES, **dataset_configs}
+            self._paths = paths
+            self._enabled = enabled
+            self._root = root
+            namespaces = namespaces or []
+            self._namespaces = [n if not n.endswith(".") else n[:-1] for n in namespaces]
+
 
     @staticmethod
     def _verify_config(ext: str, found_config: Dict):
