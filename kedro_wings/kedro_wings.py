@@ -51,7 +51,7 @@ class KedroWings:
         self,
         dataset_configs: Dict[str, Any] = None,
         paths: Dict[str, str] = None,
-        root: str = "data",
+        root: str = None,
         namespaces: Iterable[str] = None,
         enabled: bool = True,
         context: Optional[KedroContext] = None,
@@ -76,7 +76,9 @@ class KedroWings:
                 self._dataset_configs = found_kw._dataset_configs
                 self._paths = found_kw._paths
                 self._enabled = found_kw._enabled
-                self._root = found_kw._root
+                self._root = root
+                if root is None:
+                    self._root = os.path.join(str(context.project_path), 'data')
                 self._namespaces = found_kw._namespaces
                 all_pipelines = reduce(
                     lambda x, y: x + y, context.pipelines.values(), Pipeline([])
@@ -91,7 +93,7 @@ class KedroWings:
             self._dataset_configs = {**self.DEFAULT_TYPES, **dataset_configs}
             self._paths = paths
             self._enabled = enabled
-            self._root = root
+            self._root = root or "data"
             namespaces = namespaces or []
             self._namespaces = [n if not n.endswith(".") else n[:-1] for n in namespaces]
 
