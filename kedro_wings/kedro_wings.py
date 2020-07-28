@@ -45,6 +45,7 @@ class KedroWings:
         ".img": {"type": "pillow.ImageDataSet"},
         ".pkl": {"type": "pickle.PickleDataSet"},
         ".parquet": {"type": "pandas.ParquetDataSet"},
+        ".json": {"type": "json.JSONDataSet"},
     }
 
     def __init__(

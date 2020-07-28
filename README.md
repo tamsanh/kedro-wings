@@ -179,6 +179,7 @@ default_dataset_configs={
 ".img": {"type": "pillow.ImageDataSet"},
 ".pkl": {"type": "pickle.PickleDataSet"},
 ".parquet": {"type": "pandas.ParquetDataSet"},
+".json": {"type": "json.JSONDataSet"}, # Only available in kedro 0.16.3
 }
 ```
 
